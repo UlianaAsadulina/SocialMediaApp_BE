@@ -2,11 +2,13 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
-
+import postRoutes from "./routes/posts.js"
 
 const app = express(); 
 
 // MIDDLEWARE
+app.use("/posts", postRoutes);
+
 app.use(bodyParser.json({extended: true}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
