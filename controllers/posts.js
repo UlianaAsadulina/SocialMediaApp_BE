@@ -8,11 +8,16 @@ export async function getPosts (req, res) {
     } catch (error) {
         res.status(404).json({ message: error.message})
     }
-
-
-    
 };
 
-export function createPost(req, res) {
-    res.send("Post Creatiion")
+export async function createPost(req, res) {
+    const post = req.body;
+    const newPost = new postMessage(post);
+    try {
+        await newPost.save();
+        res.status(201).json(newPost)
+
+    } catch (error) {
+        res.status(409).json({message: error.message})
+    }
 };
