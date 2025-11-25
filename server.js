@@ -2,6 +2,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import mongoose from "mongoose";
+import dotenv from 'dotenv';
 import postRoutes from "./routes/posts.js"
 
 const app = express(); 
@@ -13,7 +14,8 @@ app.use(bodyParser.json({extended: true}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
 
-const CONNECTION_URI="mongodb+srv://usasadulina:pass@mongopractice.dj47a.mongodb.net/?retryWrites=true&w=majority&appName=MongoPractice"
+dotenv.config();
+const CONNECTION_URI = process.env.MONGO_URI;
 const PORT = process.env.PORT || 3000;
 
 mongoose.connect(CONNECTION_URI)
