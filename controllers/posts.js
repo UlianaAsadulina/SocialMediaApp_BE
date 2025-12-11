@@ -1,7 +1,9 @@
 import PostMessage from "../models/postMessage.js";
 import mongoose from "mongoose";
+
 import { v2 as cloudinary } from 'cloudinary';
 import dotenv from 'dotenv';
+
 
 dotenv.config();
 
@@ -14,12 +16,24 @@ cloudinary.config({
 export async function getPosts (req, res) {
     try {
         const postMessages = await PostMessage.find();
-        console.log(postMessages);
+        // console.log(postMessages);
         res.status(200).json(postMessages);
     } catch (error) {
         res.status(404).json({ message: error.message})
     }
 };
+
+export const getPost = async (req, res) => { 
+    const { id } = req.params;
+
+    try {
+        const post = await PostMessage.findById(id);
+        
+        res.status(200).json(post);
+    } catch (error) {
+        res.status(404).json({ message: error.message });
+    }
+}
 
 export async function createPost(req, res) {
     // req.body contains text fields
@@ -64,3 +78,48 @@ export async function createPost(req, res) {
         res.status(500).json({ message: "Failed to create post due to file upload or database error." });
     }
 };
+
+export const updatePost = async (req, res) => {
+    console.log("updating post");
+
+
+    const { id } = req.params;
+    const { title, message, creator, selectedFile, tags } = req.body;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send(`No post with id: ${id}`);
+
+    const updatedPost = { creator, title, message,selectedFile, _id: id, 
+           tags: req.body.tags ? req.body.tags.split(',').map(tag => tag.trim()) : [] //conver string of tags into array if it was changed
+        };
+  
+    console.log(updatedPost);
+
+    await PostMessage.findByIdAndUpdate(id, updatedPost, { new: true });
+
+    res.json(updatedPost);
+}
+
+export const deletePost = async (req, res) => {
+   
+    const { id } = req.params;
+    console.log("Deleting post id:", id);
+
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send(`No post with id: ${id}`);
+
+    await PostMessage.findByIdAndDelete(id);
+
+    res.json({ message: "Post deleted successfully." });
+}
+
+export const likePost = async (req, res) => {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(404).send(`No post with id: ${id}`);
+    
+    const post = await PostMessage.findById(id);
+
+    const updatedPost = await PostMessage.findByIdAndUpdate(id, { likeCount: post.likeCount + 1 }, { new: true });
+    
+    res.json(updatedPost);
+}
+
